@@ -1,10 +1,13 @@
 "use client";
 import { loginZodSchema } from "@/validation";
 import { useForm } from "@tanstack/react-form";
+import { Eye, EyeClosed } from "lucide-react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 export default function LoginForm() {
+  const [showPassword, setShowPassword] = useState(false);
   const form = useForm({
     defaultValues: {
       email: "",
@@ -19,7 +22,7 @@ export default function LoginForm() {
   });
   return (
     <div>
-      <p>login form</p>
+      <p className="mb-4">login form</p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -32,7 +35,7 @@ export default function LoginForm() {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
-                <Field>
+                <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                   <Input
                     id={field.name}
@@ -41,6 +44,7 @@ export default function LoginForm() {
                     onBlur={field.handleBlur}
                     value={field.state.value}
                     autoComplete="off"
+                    aria-invalid={isInvalid}
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
@@ -52,17 +56,28 @@ export default function LoginForm() {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
-                <Field>
+                <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="password"
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    value={field.state.value}
-                    autoComplete="off"
-                  />
+                  <div className="relative">
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type={showPassword ? "text" : "password"}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      value={field.state.value}
+                      autoComplete="off"
+                      aria-invalid={isInvalid}
+                      className="pr-9"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
+                    >
+                      {showPassword ? <EyeClosed /> : <Eye />}
+                    </button>
+                  </div>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
