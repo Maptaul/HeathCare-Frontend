@@ -1,4 +1,5 @@
 "use client";
+import { useLogin } from "@/hooks";
 import { loginZodSchema } from "@/validation";
 import { useForm } from "@tanstack/react-form";
 import { Eye, EyeClosed } from "lucide-react";
@@ -8,16 +9,30 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+
+  const { mutate: login, isPending: loginPending } = useLogin();
+
   const form = useForm({
     defaultValues: {
-      email: "",
-      password: "",
+      email: "superadmin@gmail.com",
+      password: "Super@admin12345",
     },
     validators: {
       onSubmit: loginZodSchema,
     },
-    onSubmit: (value) => {
-      console.log(value);
+    onSubmit: ({ value }) => {
+      const loginData = {
+        email: value.email,
+        password: value.password,
+      };
+      login(loginData, {
+        onSuccess: (res) => {
+          console.log("Login successful:", res);
+        },
+        onError: (err) => {
+          console.error("Login failed:", err);
+        },
+      });
     },
   });
   return (
