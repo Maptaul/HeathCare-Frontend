@@ -6,3 +6,11 @@ export function userLogin(payload: { email: string; password: string }) {
     body: payload,
   });
 }
+export function userLogout() {
+  return ApiClient("/auth/logout", {
+    method: "POST",
+  });
+}
+export function getMe() {
+  return ApiClient("/auth/me");
+}
