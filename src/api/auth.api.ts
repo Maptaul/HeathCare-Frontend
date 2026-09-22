@@ -14,3 +14,10 @@ export function userLogout() {
 export function getMe() {
   return ApiClient("/auth/me");
 }
+
+export function googleOAuth(payload: { idToken: string }) {
+  return ApiClient("/auth/google", {
+    // method: "POST",
+    body: payload,
+  });
+}

@@ -1,12 +1,19 @@
 "use client";
 import { useLogin } from "@/hooks";
 import { loginZodSchema } from "@/validation";
+import { GoogleLogin } from "@react-oauth/google";
 import { useForm } from "@tanstack/react-form";
 import { Eye, EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "../ui/field";
 import { Input } from "../ui/input";
 import { Spinner } from "../ui/spinner";
 import { toast } from "../ui/toast";
@@ -123,6 +130,8 @@ export default function LoginForm() {
           </Button>
         </FieldGroup>
       </form>
+      <FieldSeparator className="my-4"> Or </FieldSeparator>
+      <GoogleLogin onSuccess={() => {}} onError={() => {}} />
     </div>
   );
 }
