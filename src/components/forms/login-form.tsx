@@ -1,5 +1,5 @@
 "use client";
-import { useLogin } from "@/hooks";
+import { useGoogleOAuth, useLogin } from "@/hooks";
 import { loginZodSchema } from "@/validation";
 import { GoogleLogin } from "@react-oauth/google";
 import { useForm } from "@tanstack/react-form";
@@ -22,6 +22,8 @@ export default function LoginForm() {
   const router = useRouter();
 
   const { mutate: login, isPending: loginPending } = useLogin();
+
+  const { mutate: googleLogin } = useGoogleOAuth();
 
   const form = useForm({
     defaultValues: {
@@ -56,6 +58,50 @@ export default function LoginForm() {
       });
     },
   });
+
+  const handleGoogleLoginSuccess = (credentialResponse: {
+    credential?: string;
+  }) => {
+    const idToken = credentialResponse.credential;
+    if (!idToken) {
+      toast.add({
+        title: "Google login failed",
+        description: "No credential received from Google.",
+        type: "error",
+      });
+      return;
+    }
+    googleLogin(
+      { idToken },
+      {
+        onSuccess: () => {
+          toast.add({
+            title: "Google login successful",
+            description: "You have been logged in with Google successfully.",
+            type: "success",
+          });
+          router.push("/");
+        },
+        onError: (err) => {
+          console.error("Google login failed:", err);
+          toast.add({
+            title: "Google login failed",
+            description:
+              "An error occurred while trying to log in with Google.",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
+  const handleGoogleLoginError = () => {
+    toast.add({
+      title: "Google login failed",
+      description: "An error occurred while trying to log in with Google.",
+      type: "error",
+    });
+  };
+
   return (
     <div>
       <p className="mb-4">login form</p>
@@ -130,8 +176,16 @@ export default function LoginForm() {
           </Button>
         </FieldGroup>
       </form>
-      <FieldSeparator className="my-4"> Or </FieldSeparator>
-      <GoogleLogin onSuccess={() => {}} onError={() => {}} />
+      <FieldSeparator className="my-4">Or continue with Google</FieldSeparator>
+      <GoogleLogin
+        theme="filled_blue"
+        shape="pill"
+        size="large"
+        width="100%"
+        onSuccess={handleGoogleLoginSuccess}
+        onError={handleGoogleLoginError}
+        text="continue_with"
+      />
     </div>
   );
 }

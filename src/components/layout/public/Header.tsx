@@ -43,9 +43,7 @@ export default function Header() {
     });
   };
 
-  const handleGoogleLoginSuccess = () => {};
-  const handleGoogleLoginError = () => {};
-
+ 
   return (
     <header className="w-full h-16 bg-white shadow-md border-b flex items-center justify-center">
       <div className=" flex justify-between items-center w-full max-w-6xl px-4">
