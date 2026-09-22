@@ -3,12 +3,14 @@ import { useLogin } from "@/hooks";
 import { loginZodSchema } from "@/validation";
 import { useForm } from "@tanstack/react-form";
 import { Eye, EyeClosed } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const { mutate: login, isPending: loginPending } = useLogin();
 
@@ -27,7 +29,7 @@ export default function LoginForm() {
       };
       login(loginData, {
         onSuccess: (res) => {
-          console.log("Login successful:", res);
+          router.push("/");
         },
         onError: (err) => {
           console.error("Login failed:", err);
