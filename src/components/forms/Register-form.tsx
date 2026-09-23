@@ -25,6 +25,7 @@ import {
   FieldSeparator,
 } from "../ui/field";
 import { Input } from "../ui/input";
+import { Spinner } from "../ui/spinner";
 import { toast } from "../ui/toast";
 
 const iconClass =
@@ -40,11 +41,11 @@ export default function RegisterForm() {
   type PatientDefaultValue = z.infer<typeof patientRegistrationZodSchema>;
 
   const defaultValues: PatientDefaultValue = {
-    name: "",
-    email: "",
-    contactNumber: "",
-    password: "",
-    confirmPassword: "",
+    name: "maptaul",
+    email: "maptaulislam1@gmail.com",
+    contactNumber: "01846035436",
+    password: "Pa$$w0rd!",
+    confirmPassword: "Pa$$w0rd!",
   };
 
   const { mutate: registration, isPending: registerPending } =
@@ -83,13 +84,15 @@ export default function RegisterForm() {
             type: "success",
           });
           const params = new URLSearchParams({ email: registrationData.email });
-          router.push(`/account-verify?${params.toString()}`);
+          router.push(`/register/account-verify?${params.toString()}`);
         },
         onError: (err) => {
-          console.error("Registration failed:", err);
+          const message = (err as { data?: { message?: string } }).data
+            ?.message;
           toast.add({
             title: "Registration failed",
-            description: "Please check your information and try again.",
+            description:
+              message || "Please check your information and try again.",
             type: "error",
           });
         },
@@ -285,7 +288,13 @@ export default function RegisterForm() {
             disabled={registerPending}
             className="h-11 w-full text-base font-medium"
           >
-            {registerPending ? "Creating account..." : "Create account"}
+            {registerPending ? (
+              <>
+                <Spinner /> Creating account...
+              </>
+            ) : (
+              <>Create account</>
+            )}
           </Button>
         </FieldGroup>
       </form>
