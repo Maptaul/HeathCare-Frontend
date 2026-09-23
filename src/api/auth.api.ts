@@ -1,4 +1,5 @@
 import ApiClient from "@/lib/apiClient";
+import { RegistrationPayload } from "@/types";
 
 export function userLogin(payload: { email: string; password: string }) {
   return ApiClient("/auth/login", {
@@ -6,6 +7,13 @@ export function userLogin(payload: { email: string; password: string }) {
     body: payload,
   });
 }
+export function userRegistration(payload: RegistrationPayload) {
+  return ApiClient("/auth/register", {
+    method: "POST",
+    body: payload,
+  });
+}
+
 export function userLogout() {
   return ApiClient("/auth/logout", {
     method: "POST",

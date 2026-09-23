@@ -1,9 +1,20 @@
 "use client";
+import { useRegistration } from "@/hooks";
+import { patientRegistrationZodSchema } from "@/validation";
 import { useForm } from "@tanstack/react-form";
-import { Eye, EyeClosed, Lock, Mail, Phone, Stethoscope, User } from "lucide-react";
+import {
+  Eye,
+  EyeClosed,
+  Lock,
+  Mail,
+  Phone,
+  Stethoscope,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import z from "zod";
 import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
 import { Button } from "../ui/button";
 import {
@@ -14,6 +25,7 @@ import {
   FieldSeparator,
 } from "../ui/field";
 import { Input } from "../ui/input";
+import { toast } from "../ui/toast";
 
 const iconClass =
   "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground";
@@ -25,17 +37,63 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  type PatientDefaultValue = z.infer<typeof patientRegistrationZodSchema>;
+
+  const defaultValues: PatientDefaultValue = {
+    name: "",
+    email: "",
+    contactNumber: "",
+    password: "",
+    confirmPassword: "",
+  };
+
+  const { mutate: registration, isPending: registerPending } =
+    useRegistration();
+
   const form = useForm({
-    defaultValues: {
-      name: "",
-      email: "",
-      contactNumber: "",
-      password: "",
-      confirmPassword: "",
+    defaultValues,
+    validators: {
+      onSubmit: patientRegistrationZodSchema,
     },
     onSubmit: async ({ value }) => {
-      // Handle form submission logic here
-      console.log("Form submitted with values:", value);
+      const registrationData = {
+        name: value.name,
+        email: value.email,
+        password: value.password,
+        patient: {
+          contactNumber: value.contactNumber || undefined,
+        },
+      };
+      registration(registrationData, {
+        onSuccess: (res) => {
+          if (!res.success) {
+            toast.add({
+              title: "Registration failed",
+              description:
+                res.message || "Please check your information and try again.",
+              type: "error",
+            });
+            return;
+          }
+
+          toast.add({
+            title: "Registration successful",
+            description:
+              "Please check your email for verification instructions.",
+            type: "success",
+          });
+          const params = new URLSearchParams({ email: registrationData.email });
+          router.push(`/account-verify?${params.toString()}`);
+        },
+        onError: (err) => {
+          console.error("Registration failed:", err);
+          toast.add({
+            title: "Registration failed",
+            description: "Please check your information and try again.",
+            type: "error",
+          });
+        },
+      });
     },
   });
 
@@ -157,13 +215,15 @@ export default function RegisterForm() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                       value={field.state.value}
-                      autoComplete="off"
+                      autoComplete="new-password"
                       aria-invalid={isInvalid}
                       className="h-11 pl-9 pr-10"
                     />
                     <button
                       type="button"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                       onClick={() => setShowPassword((prev) => !prev)}
                       className={toggleClass}
                     >
@@ -179,7 +239,7 @@ export default function RegisterForm() {
               );
             }}
           </form.Field>
-          <form.Field name="password">
+          <form.Field name="confirmPassword">
             {(field) => {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
@@ -191,22 +251,24 @@ export default function RegisterForm() {
                     <Input
                       id={field.name}
                       name={field.name}
-                      type={showPassword ? "text" : "password"}
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="••••••••"
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                       value={field.state.value}
-                      autoComplete="off"
+                      autoComplete="new-password"
                       aria-invalid={isInvalid}
                       className="h-11 pl-9 pr-10"
                     />
                     <button
                       type="button"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={
+                        showConfirmPassword ? "Hide password" : "Show password"
+                      }
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
                       className={toggleClass}
                     >
-                      {showPassword ? (
+                      {showConfirmPassword ? (
                         <EyeClosed className="size-4" />
                       ) : (
                         <Eye className="size-4" />
@@ -218,8 +280,12 @@ export default function RegisterForm() {
               );
             }}
           </form.Field>
-          <Button type="submit" className="h-11 w-full text-base font-medium">
-            Create account
+          <Button
+            type="submit"
+            disabled={registerPending}
+            className="h-11 w-full text-base font-medium"
+          >
+            {registerPending ? "Creating account..." : "Create account"}
           </Button>
         </FieldGroup>
       </form>
