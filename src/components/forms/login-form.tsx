@@ -1,11 +1,12 @@
 "use client";
 import { useGoogleOAuth, useLogin } from "@/hooks";
 import { loginZodSchema } from "@/validation";
-import { GoogleLogin } from "@react-oauth/google";
 import { useForm } from "@tanstack/react-form";
 import { Eye, EyeClosed } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import GoogleLoginComponent from "../modules/google-login/GoogleLogin";
 import { Button } from "../ui/button";
 import {
   Field,
@@ -58,49 +59,6 @@ export default function LoginForm() {
       });
     },
   });
-
-  const handleGoogleLoginSuccess = (credentialResponse: {
-    credential?: string;
-  }) => {
-    const idToken = credentialResponse.credential;
-    if (!idToken) {
-      toast.add({
-        title: "Google login failed",
-        description: "No credential received from Google.",
-        type: "error",
-      });
-      return;
-    }
-    googleLogin(
-      { idToken },
-      {
-        onSuccess: () => {
-          toast.add({
-            title: "Google login successful",
-            description: "You have been logged in with Google successfully.",
-            type: "success",
-          });
-          router.push("/");
-        },
-        onError: (err) => {
-          console.error("Google login failed:", err);
-          toast.add({
-            title: "Google login failed",
-            description:
-              "An error occurred while trying to log in with Google.",
-            type: "error",
-          });
-        },
-      },
-    );
-  };
-  const handleGoogleLoginError = () => {
-    toast.add({
-      title: "Google login failed",
-      description: "An error occurred while trying to log in with Google.",
-      type: "error",
-    });
-  };
 
   return (
     <div>
@@ -177,15 +135,10 @@ export default function LoginForm() {
         </FieldGroup>
       </form>
       <FieldSeparator className="my-4">Or continue with Google</FieldSeparator>
-      <GoogleLogin
-        theme="filled_blue"
-        shape="pill"
-        size="large"
-        width="100%"
-        onSuccess={handleGoogleLoginSuccess}
-        onError={handleGoogleLoginError}
-        text="continue_with"
-      />
+      <GoogleLoginComponent />
+      <p className="mt-4 text-center text-sm text-muted-foreground">
+        Don't have an account? <Link href="/register">Register</Link>
+      </p>
     </div>
   );
 }
