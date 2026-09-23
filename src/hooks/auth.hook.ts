@@ -1,6 +1,7 @@
 import {
   getMe,
   googleOAuth,
+  resendOtp,
   userLogin,
   userLogout,
   userRegistration,
@@ -16,6 +17,11 @@ export function useLogin() {
 export function useVerifyEmail() {
   return useMutation({
     mutationFn: verifyEmail,
+  });
+}
+export function useResendOtp() {
+  return useMutation({
+    mutationFn: resendOtp,
   });
 }
 export function useRegistration() {

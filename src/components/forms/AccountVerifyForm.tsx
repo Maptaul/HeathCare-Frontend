@@ -1,5 +1,5 @@
 "use client";
-import { useVerifyEmail } from "@/hooks";
+import { useResendOtp, useVerifyEmail } from "@/hooks";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,23 +12,40 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Field, FieldError, FieldLabel } from "../ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "../ui/field";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { toast } from "../ui/toast";
+
+const RESEND_COOLDOWN = 120; // seconds
+
 export default function AccountVerifyForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const [otp, setOtp] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
+  const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
 
   const { mutate: verify, isPending: verifyPending } = useVerifyEmail();
+  const { mutate: resend, isPending: resendPending } = useResendOtp();
   const email = searchParams.get("email") || "";
   useEffect(() => {
     if (!email) {
       router.push("/");
     }
   }, [email, router]);
+
+  useEffect(() => {
+    if (resendTimer <= 0) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setResendTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [resendTimer]);
 
   if (!email) {
     return (
@@ -37,6 +54,41 @@ export default function AccountVerifyForm() {
       </p>
     );
   }
+
+  const handleResendOtp = () => {
+    resend(
+      { email },
+      {
+        onSuccess: (res) => {
+          if (!res.success) {
+            toast.add({
+              title: "Resend failed",
+              description: res.message || "Please try again later.",
+              type: "error",
+            });
+            return;
+          }
+
+          toast.add({
+            title: "OTP resent",
+            description: `A new code has been sent to ${email}.`,
+            type: "success",
+          });
+          setOtp("");
+          setResendTimer(RESEND_COOLDOWN);
+        },
+        onError: (err) => {
+          const message = (err as { data?: { message?: string } }).data
+            ?.message;
+          toast.add({
+            title: "Resend failed",
+            description: message || "Please try again later.",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
 
   const handleOtpSubmit = () => {
     if (otp.length !== 6) {
@@ -127,12 +179,22 @@ export default function AccountVerifyForm() {
               />
             )}
           </Field>
+          <FieldDescription>
+            {resendTimer > 0
+              ? `Resend the code in ${resendTimer}s`
+              : "You can resend the code now"}
+          </FieldDescription>
         </form>
       </CardContent>
       <CardFooter className="gap-2">
-        {/* TODO: wire onClick once a resend-OTP hook exists */}
-        <Button type="button" variant="outline">
-          Resend
+        <Button
+          // {...{ autoComplete: "off" }}
+          disabled={resendTimer > 0 || resendPending}
+          type="button"
+          variant="outline"
+          onClick={handleResendOtp}
+        >
+          {resendPending ? "Resending..." : "Resend"}
         </Button>
         <Button type="submit" form="otp-form" disabled={verifyPending}>
           {verifyPending ? "Verifying..." : "Submit"}
