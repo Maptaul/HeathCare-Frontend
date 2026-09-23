@@ -1,4 +1,3 @@
-import LoginForm from "@/components/forms/login-form";
 import RegisterForm from "@/components/forms/Register-form";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,7 +26,7 @@ export default function RegisterPage() {
       </div>
       <div className="relative hidden bg-muted lg:block">
         <img
-          src="/window.svg"
+          src="/desk.jpg"
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

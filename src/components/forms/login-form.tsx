@@ -2,7 +2,7 @@
 import { useGoogleOAuth, useLogin } from "@/hooks";
 import { loginZodSchema } from "@/validation";
 import { useForm } from "@tanstack/react-form";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed, Lock, Mail, Stethoscope } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -61,8 +61,16 @@ export default function LoginForm() {
   });
 
   return (
-    <div>
-      <p className="mb-4">login form</p>
+    <div className="mx-auto w-full max-w-md rounded-2xl border bg-card p-8 shadow-lg">
+      <div className="mb-8 flex flex-col items-center text-center">
+        <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Stethoscope className="size-6" />
+        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Sign in to your account to continue
+        </p>
+      </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -77,15 +85,21 @@ export default function LoginForm() {
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    value={field.state.value}
-                    autoComplete="off"
-                    aria-invalid={isInvalid}
-                  />
+                  <div className="relative">
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="email"
+                      placeholder="you@example.com"
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      value={field.state.value}
+                      autoComplete="off"
+                      aria-invalid={isInvalid}
+                      className="h-11 pl-9"
+                    />
+                  </div>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
@@ -99,23 +113,30 @@ export default function LoginForm() {
                 <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                   <div className="relative">
+                    <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id={field.name}
                       name={field.name}
                       type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                       value={field.state.value}
                       autoComplete="off"
                       aria-invalid={isInvalid}
-                      className="pr-9"
+                      className="h-11 pl-9 pr-10"
                     />
                     <button
                       type="button"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                       onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
+                      className="absolute inset-y-0 right-3 flex items-center text-muted-foreground transition-colors hover:text-foreground"
                     >
-                      {showPassword ? <EyeClosed /> : <Eye />}
+                      {showPassword ? (
+                        <EyeClosed className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
                     </button>
                   </div>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -123,21 +144,31 @@ export default function LoginForm() {
               );
             }}
           </form.Field>
-          <Button disabled={loginPending} type="submit">
+          <Button
+            disabled={loginPending}
+            type="submit"
+            className="h-11 w-full text-base font-medium"
+          >
             {loginPending ? (
               <>
-                <Spinner /> Submitting...
+                <Spinner /> Signing in...
               </>
             ) : (
-              <>Submit</>
+              <>Sign in</>
             )}
           </Button>
         </FieldGroup>
       </form>
-      <FieldSeparator className="my-4">Or continue with Google</FieldSeparator>
+      <FieldSeparator className="my-6">Or continue with</FieldSeparator>
       <GoogleLoginComponent />
-      <p className="mt-4 text-center text-sm text-muted-foreground">
-        Don't have an account? <Link href="/register">Register</Link>
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Don't have an account?{" "}
+        <Link
+          href="/register"
+          className="font-medium text-primary underline-offset-4 hover:underline"
+        >
+          Create one
+        </Link>
       </p>
     </div>
   );
