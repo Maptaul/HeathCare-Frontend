@@ -18,3 +18,5 @@ export function isAcceptedFileSize(fileSize: number) {
 export function isAcceptedFileType(fileType: string) {
   return ACCEPTED_FILE_TYPES.includes(fileType);
 }
+
+export const MAX_ADDITIONAL_FILES = 5;

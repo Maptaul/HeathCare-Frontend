@@ -1,13 +1,16 @@
 "use client";
+import { formatFileSize } from "@/utils";
 import {
   isAcceptedFileSize,
   isAcceptedFileType,
+  MAX_ADDITIONAL_FILES,
 } from "@/validation/doctor-application.validation";
 import { useForm } from "@tanstack/react-form";
 import {
   Banknote,
   BriefcaseBusiness,
   CircleCheck,
+  FileText,
   FileUp,
   GraduationCap,
   Mail,
@@ -54,6 +57,7 @@ export default function DoctorApplyForm() {
       consultationFee: "",
       bio: "",
       resume: null as File | null,
+      additionalFiles: [] as File[],
     },
     onSubmit: async ({ value }) => {
       console.log(value);
@@ -432,8 +436,121 @@ export default function DoctorApplyForm() {
                       <span className="ml-2 text-sm text-muted-foreground">
                         {file.name} ({(file.size / (1024 * 1024)).toFixed(2)}{" "}
                         MB)
+                        {formatFileSize(file.size)}
                       </span>
                     ) : (
+                      <span className="ml-2 text-sm text-muted-foreground">
+                        No file selected
+                      </span>
+                    )}
+                  </div>
+
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <form.Field name="additionalFiles">
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+
+              const files = field.state.value as File[];
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor="additional-files">
+                    Additional Files
+                  </FieldLabel>
+
+                  <div>
+                    <Button
+                      render={<label htmlFor="additional-files" />}
+                      nativeButton={false}
+                      variant="outline"
+                    >
+                      <FileUp size="4" />
+                      Upload additional files {optionalTag}
+                    </Button>
+
+                    <input
+                      id="additional-files"
+                      type="file"
+                      multiple
+                      className="sr-only"
+                      name={field.name}
+                      onChange={(e) => {
+                        const incoming = Array.from(e.target.files ?? []);
+
+                        if (incoming.length === 0) {
+                          return;
+                        }
+
+                        const invalidFile = incoming.some(
+                          (file) =>
+                            !isAcceptedFileSize(file.size) ||
+                            !isAcceptedFileType(file.type),
+                        );
+
+                        if (invalidFile) {
+                          field.handleBlur();
+                          e.target.value = "";
+                          return;
+                        }
+
+                        field.handleChange([...field.state.value, ...incoming]);
+                        e.target.value = "";
+                      }}
+                    />
+                    {files.length > 0 && (
+                      <span className="ml-2 text-sm text-muted-foreground">
+                        {files.length} of {MAX_ADDITIONAL_FILES} added
+                      </span>
+                    )}
+                    {files.length > 0 && (
+                      <ul className="ml-2 mt-1 text-sm text-muted-foreground">
+                        {files.map((file, index) => (
+                          <li
+                            key={`${file.name} -${index}`}
+                            className="flex items-center gap-2 justify-between"
+                          >
+                            <span className="text-sm text-muted-foreground">
+                              <FileText className="h-4 w-4" />
+                              <span className="ml-1">{file.name}</span>
+                              <span>{formatFileSize(file.size)} </span>
+                            </span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              aria-label={`Remove ${file.name}`}
+                              size="icon"
+                              onClick={() => {
+                                field.handleChange(
+                                  files.filter((_, i) => i !== index),
+                                );
+                              }}
+                            >
+                              <span className="sr-only">Remove file</span>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="h-4 w-4"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {files.length === 0 && (
                       <span className="ml-2 text-sm text-muted-foreground">
                         No file selected
                       </span>
