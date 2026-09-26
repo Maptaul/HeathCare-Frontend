@@ -1,4 +1,6 @@
 "use client";
+import { useApplyAsDoctor } from "@/hooks";
+import { DoctorApplicationData } from "@/types/doctor.type";
 import { formatFileSize } from "@/utils";
 import {
   isAcceptedFileSize,
@@ -62,6 +64,7 @@ const optionalTag = (
 
 export default function DoctorApplyForm() {
   const router = useRouter();
+  const { mutate: apply, isPending: applyPending } = useApplyAsDoctor();
 
   const form = useForm({
     defaultValues: {
@@ -79,15 +82,34 @@ export default function DoctorApplyForm() {
       additionalFiles: [] as File[],
     },
     onSubmit: async ({ value }) => {
-      const doctorData : DoctorApplicationData  ={
-        user :{
-          name : value.name.trim(),
-          email : value.name.trim(),
+      const doctorData: DoctorApplicationData = {
+        user: {
+          name: value.name.trim(),
+          email: value.email.trim(),
+        },
+        doctor: {
+          address: value.address.trim(),
+          specialization: value.specialization.trim(),
+          licenseNumber: value.licenseNumber.trim(),
+          qualifications: value.qualifications.trim(),
+          experienceYears: Number(value.experience),
+          bio: value.bio.trim(),
+          consultationFee: Number(value.consultationFee),
+          contactNumber: value.phone.trim(),
+        },
+      };
+      apply(
+        {
+          data: doctorData,
+          resume: value.resume as File,
+          additionalFiles: value.additionalFiles,
         },
         {
-          sp
-        }
-      }
+          onSuccess: (res) => {
+            console.log(res);
+          },
+        },
+      );
     },
   });
 
@@ -461,9 +483,7 @@ export default function DoctorApplyForm() {
                     />
                     {file ? (
                       <span className="ml-2 text-sm text-muted-foreground">
-                        {file.name} ({(file.size / (1024 * 1024)).toFixed(2)}{" "}
-                        MB)
-                        {formatFileSize(file.size)}
+                        {file.name} ({formatFileSize(file.size)})
                       </span>
                     ) : (
                       <span className="ml-2 text-sm text-muted-foreground">
@@ -590,8 +610,12 @@ export default function DoctorApplyForm() {
             }}
           </form.Field>
 
-          <Button type="submit" className="h-11 w-full text-base font-medium">
-            Submit application
+          <Button
+            type="submit"
+            disabled={applyPending}
+            className="h-11 w-full text-base font-medium"
+          >
+            {applyPending ? "Submitting..." : "Submit application"}
           </Button>
         </FieldGroup>
       </form>
