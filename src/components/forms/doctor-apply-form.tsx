@@ -32,6 +32,25 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 
+//data signature
+
+// {
+//   "user": {
+//     "name": "Dr. Fatima",
+//     "email": "fatima@example.com"
+//   },
+//   "doctor": {
+//     "address": "House 12, Road 5, Dhanmondi, Dhaka",
+//     "specialization": "Cardiology",
+//     "licenseNumber": "BMDC-2026-98765",
+//     "qualifications": "MBBS, FCPS (Cardiology)",
+//     "experienceYears": 8,
+//     "bio": "Consultant cardiologist with 8 years of experience in interventional cardiology.",
+//     "consultationFee": 1000,
+//     "contactNumber": "+8801700000099"
+//   }
+// }
+
 const iconClass =
   "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground";
 
@@ -46,21 +65,29 @@ export default function DoctorApplyForm() {
 
   const form = useForm({
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      specialization: "",
-      licenseNumber: "",
-      qualifications: "",
-      experience: "",
-      consultationFee: "",
-      bio: "",
+      name: "Dr. Fatima",
+      email: "fatima@example.com",
+      phone: " +8801700000099",
+      address: " House 12, Road 5, Dhanmondi, Dhaka",
+      specialization: " Cardiology",
+      licenseNumber: " BMDC-2026-98765",
+      qualifications: " MBBS, FCPS (Cardiology)",
+      experience: "8",
+      consultationFee: "1000",
+      bio: "Consultant cardiologist with 8 years of experience in interventional cardiology.",
       resume: null as File | null,
       additionalFiles: [] as File[],
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      const doctorData : DoctorApplicationData  ={
+        user :{
+          name : value.name.trim(),
+          email : value.name.trim(),
+        },
+        {
+          sp
+        }
+      }
     },
   });
 
