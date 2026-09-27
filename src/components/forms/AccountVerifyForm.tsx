@@ -1,5 +1,5 @@
 "use client";
-import { useResendOtp, useVerifyEmail } from "@/hooks";
+import { useResendOtp, useVerifyDoctorAccount, useVerifyEmail } from "@/hooks";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,7 +18,11 @@ import { toast } from "../ui/toast";
 
 const RESEND_COOLDOWN = 120; // seconds
 
-export default function AccountVerifyForm() {
+export default function AccountVerifyForm({
+  mode = "patient",
+}: {
+  mode?: "patient" | "doctor";
+}) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -26,8 +30,12 @@ export default function AccountVerifyForm() {
   const [isInvalid, setIsInvalid] = useState(false);
   const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
 
-  const { mutate: verify, isPending: verifyPending } = useVerifyEmail();
+  const { mutate: verifyPatient, isPending: verifyPending } = useVerifyEmail();
+  const { mutate: verifyDoctor } = useVerifyDoctorAccount();
   const { mutate: resend, isPending: resendPending } = useResendOtp();
+
+  const verify = mode === "doctor" ? verifyDoctor : verifyPatient;
+
   const email = searchParams.get("email") || "";
   useEffect(() => {
     if (!email) {
@@ -109,6 +117,17 @@ export default function AccountVerifyForm() {
               res.message || "Please check your information and try again.",
             type: "error",
           });
+          return;
+        }
+
+        if (mode === "doctor") {
+          toast.add({
+            title: "Verification successful",
+            description:
+              "Your account has been verified. Please wait for admin approval.",
+            type: "success",
+          });
+          router.push("/");
           return;
         }
 

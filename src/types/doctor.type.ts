@@ -26,3 +26,8 @@ export interface DoctorApplicationPayload {
   additionalFiles: File[];
   data: DoctorApplicationData;
 }
+
+export interface verifyAccountPayload {
+  email: string;
+  otp: string;
+}

@@ -22,7 +22,7 @@ export default function AccountVerifyPage() {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <Suspense fallback={<p>Loading...</p>}>
-              <AccountVerifyForm mode="patient" />
+              <AccountVerifyForm mode="doctor" />
             </Suspense>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import apiClient from "@/lib/apiClient";
-import { DoctorApplicationPayload } from "@/types/doctor.type";
+import { DoctorApplicationPayload, verifyAccountPayload } from "@/types";
 
 export function applyAsDoctor(payload: DoctorApplicationPayload) {
   const formData = new FormData();
@@ -14,5 +14,11 @@ export function applyAsDoctor(payload: DoctorApplicationPayload) {
   return apiClient("/doctor/apply-as-doctor", {
     method: "POST",
     body: formData,
+  });
+}
+export function verifyDoctorAccount(payload: verifyAccountPayload) {
+  return apiClient("/doctor/apply-as-doctor/verify-email", {
+    method: "POST",
+    body: payload,
   });
 }

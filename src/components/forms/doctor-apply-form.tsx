@@ -2,11 +2,7 @@
 import { useApplyAsDoctor } from "@/hooks";
 import { DoctorApplicationData } from "@/types/doctor.type";
 import { formatFileSize } from "@/utils";
-import {
-  isAcceptedFileSize,
-  isAcceptedFileType,
-  MAX_ADDITIONAL_FILES,
-} from "@/validation/doctor-application.validation";
+
 import { useForm } from "@tanstack/react-form";
 import {
   Banknote,
@@ -33,6 +29,8 @@ import {
 } from "../ui/field";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { toast } from "../ui/toast";
+import { isAcceptedFileSize, isAcceptedFileType, MAX_ADDITIONAL_FILES } from "@/validation";
 
 //data signature
 
@@ -68,16 +66,16 @@ export default function DoctorApplyForm() {
 
   const form = useForm({
     defaultValues: {
-      name: "Dr. Fatima",
-      email: "fatima@example.com",
-      phone: " +8801700000099",
-      address: " House 12, Road 5, Dhanmondi, Dhaka",
-      specialization: " Cardiology",
-      licenseNumber: " BMDC-2026-98765",
-      qualifications: " MBBS, FCPS (Cardiology)",
-      experience: "8",
-      consultationFee: "1000",
-      bio: "Consultant cardiologist with 8 years of experience in interventional cardiology.",
+      name: "",
+      email: "",
+      phone: " ",
+      address: "",
+      specialization: "",
+      licenseNumber: "",
+      qualifications: "",
+      experience: "",
+      consultationFee: "",
+      bio: "",
       resume: null as File | null,
       additionalFiles: [] as File[],
     },
@@ -106,7 +104,32 @@ export default function DoctorApplyForm() {
         },
         {
           onSuccess: (res) => {
-            console.log(res);
+            if (!res.success) {
+              toast.add({
+                title: "Server Failure",
+                description: res.message || "Please try again later.",
+                type: "error",
+              });
+              return;
+            }
+            toast.add({
+              title: "Application Submitted",
+              description:
+                "Your application has been submitted successfully. Please check your email for verification.",
+              type: "success",
+            });
+            const params = new URLSearchParams({
+              email: doctorData.user.email,
+            });
+            router.push(`/apply-as-doctor/verify-account?${params.toString()}`);
+          },
+          onError: (err) => {
+            toast.add({
+              title: "Application Failed",
+              description:
+                err.message || "Please check your details and try again.",
+              type: "error",
+            });
           },
         },
       );
