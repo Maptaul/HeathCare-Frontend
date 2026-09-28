@@ -1,3 +1,4 @@
+"use client";
 import { toast } from "@/components/ui/toast";
 import { useGoogleOAuth } from "@/hooks";
 import { GoogleLogin } from "@react-oauth/google";

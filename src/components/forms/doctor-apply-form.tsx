@@ -1,6 +1,6 @@
 "use client";
 import { useApplyAsDoctor } from "@/hooks";
-import { DoctorApplicationData } from "@/types/doctor.type";
+import type { DoctorApplicationData } from "@/types/doctor.type";
 import { formatFileSize } from "@/utils";
 
 import { useForm } from "@tanstack/react-form";
@@ -16,6 +16,7 @@ import {
   Phone,
   Stethoscope,
   User,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,7 +31,12 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { toast } from "../ui/toast";
-import { isAcceptedFileSize, isAcceptedFileType, MAX_ADDITIONAL_FILES } from "@/validation";
+import {
+  ACCEPTED_FILE_TYPES,
+  doctorApplicationSchema,
+  MAX_ADDITIONAL_FILES,
+  MAX_BIO_LENGTH,
+} from "@/validation";
 
 //data signature
 
@@ -54,7 +60,10 @@ import { isAcceptedFileSize, isAcceptedFileType, MAX_ADDITIONAL_FILES } from "@/
 const iconClass =
   "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground";
 
-const BIO_MAX = 1000;
+const ACCEPT_ATTR = ACCEPTED_FILE_TYPES.join(",");
+
+// Empty optional inputs are sent as undefined (dropped by JSON.stringify)
+const optionalValue = (value: string) => value.trim() || undefined;
 
 const optionalTag = (
   <span className="font-normal text-muted-foreground">(optional)</span>
@@ -68,7 +77,7 @@ export default function DoctorApplyForm() {
     defaultValues: {
       name: "",
       email: "",
-      phone: " ",
+      phone: "",
       address: "",
       specialization: "",
       licenseNumber: "",
@@ -79,27 +88,32 @@ export default function DoctorApplyForm() {
       resume: null as File | null,
       additionalFiles: [] as File[],
     },
+    validators: {
+      onSubmit: doctorApplicationSchema,
+    },
     onSubmit: async ({ value }) => {
       const doctorData: DoctorApplicationData = {
         user: {
           name: value.name.trim(),
-          email: value.email.trim(),
+          email: value.email.trim().toLowerCase(),
         },
         doctor: {
-          address: value.address.trim(),
+          address: optionalValue(value.address),
           specialization: value.specialization.trim(),
           licenseNumber: value.licenseNumber.trim(),
           qualifications: value.qualifications.trim(),
           experienceYears: Number(value.experience),
-          bio: value.bio.trim(),
-          consultationFee: Number(value.consultationFee),
-          contactNumber: value.phone.trim(),
+          bio: optionalValue(value.bio),
+          consultationFee: value.consultationFee.trim()
+            ? Number(value.consultationFee)
+            : undefined,
+          contactNumber: optionalValue(value.phone),
         },
       };
       apply(
         {
           data: doctorData,
-          resume: value.resume as File,
+          resume: value.resume,
           additionalFiles: value.additionalFiles,
         },
         {
@@ -124,10 +138,12 @@ export default function DoctorApplyForm() {
             router.push(`/apply-as-doctor/verify-account?${params.toString()}`);
           },
           onError: (err) => {
+            const message = (err as { data?: { message?: string } }).data
+              ?.message;
             toast.add({
               title: "Application Failed",
               description:
-                err.message || "Please check your details and try again.",
+                message || "Please check your details and try again.",
               type: "error",
             });
           },
@@ -221,7 +237,9 @@ export default function DoctorApplyForm() {
                   field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Contact number</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>
+                      Contact number {optionalTag}
+                    </FieldLabel>
                     <div className="relative">
                       <Phone className={iconClass} />
                       <Input
@@ -441,7 +459,7 @@ export default function DoctorApplyForm() {
                   <Textarea
                     id={field.name}
                     name={field.name}
-                    maxLength={BIO_MAX}
+                    maxLength={MAX_BIO_LENGTH}
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -454,7 +472,7 @@ export default function DoctorApplyForm() {
                       Shown on your public profile after approval.
                     </FieldDescription>
                     <FieldDescription>
-                      {field.state.value.length}/{BIO_MAX}
+                      {field.state.value.length}/{MAX_BIO_LENGTH}
                     </FieldDescription>
                   </div>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -467,7 +485,7 @@ export default function DoctorApplyForm() {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
 
-              const file = field.state.value as File;
+              const file = field.state.value;
 
               return (
                 <Field data-invalid={isInvalid}>
@@ -479,26 +497,18 @@ export default function DoctorApplyForm() {
                       nativeButton={false}
                       variant="outline"
                     >
-                      <FileUp size="4" />
+                      <FileUp className="size-4" />
                       Upload resume {optionalTag}
                     </Button>
 
                     <input
                       id="resume-field"
                       type="file"
+                      accept={ACCEPT_ATTR}
                       className="sr-only"
                       name={field.name}
                       onChange={(e) => {
                         const selected = e.target.files?.[0] ?? null;
-
-                        if (
-                          selected &&
-                          (!isAcceptedFileSize(selected.size) ||
-                            !isAcceptedFileType(selected.type))
-                        ) {
-                          field.handleBlur();
-                          return;
-                        }
 
                         field.handleChange(selected);
                         e.target.value = "";
@@ -525,7 +535,7 @@ export default function DoctorApplyForm() {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
 
-              const files = field.state.value as File[];
+              const files = field.state.value;
 
               return (
                 <Field data-invalid={isInvalid}>
@@ -539,7 +549,7 @@ export default function DoctorApplyForm() {
                       nativeButton={false}
                       variant="outline"
                     >
-                      <FileUp size="4" />
+                      <FileUp className="size-4" />
                       Upload additional files {optionalTag}
                     </Button>
 
@@ -547,47 +557,50 @@ export default function DoctorApplyForm() {
                       id="additional-files"
                       type="file"
                       multiple
+                      accept={ACCEPT_ATTR}
                       className="sr-only"
                       name={field.name}
                       onChange={(e) => {
                         const incoming = Array.from(e.target.files ?? []);
 
+                        e.target.value = "";
                         if (incoming.length === 0) {
                           return;
                         }
-
-                        const invalidFile = incoming.some(
-                          (file) =>
-                            !isAcceptedFileSize(file.size) ||
-                            !isAcceptedFileType(file.type),
-                        );
-
-                        if (invalidFile) {
-                          field.handleBlur();
-                          e.target.value = "";
-                          return;
+                        if (
+                          files.length + incoming.length >
+                          MAX_ADDITIONAL_FILES
+                        ) {
+                          toast.add({
+                            title: "Too many files",
+                            description: `You can upload a maximum of ${MAX_ADDITIONAL_FILES} additional files.`,
+                            type: "error",
+                          });
                         }
-
-                        field.handleChange([...field.state.value, ...incoming]);
-                        e.target.value = "";
+                        field.handleChange(
+                          [...files, ...incoming].slice(
+                            0,
+                            MAX_ADDITIONAL_FILES,
+                          ),
+                        );
                       }}
                     />
-                    {files.length > 0 && (
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        {files.length} of {MAX_ADDITIONAL_FILES} added
-                      </span>
-                    )}
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {files.length > 0
+                        ? `${files.length} of ${MAX_ADDITIONAL_FILES} added`
+                        : "No file selected"}
+                    </span>
                     {files.length > 0 && (
                       <ul className="ml-2 mt-1 text-sm text-muted-foreground">
                         {files.map((file, index) => (
                           <li
-                            key={`${file.name} -${index}`}
+                            key={`${file.name}-${file.lastModified}-${index}`}
                             className="flex items-center gap-2 justify-between"
                           >
-                            <span className="text-sm text-muted-foreground">
-                              <FileText className="h-4 w-4" />
-                              <span className="ml-1">{file.name}</span>
-                              <span>{formatFileSize(file.size)} </span>
+                            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <FileText className="size-4" />
+                              <span>{file.name}</span>
+                              <span>({formatFileSize(file.size)})</span>
                             </span>
                             <Button
                               type="button"
@@ -600,30 +613,11 @@ export default function DoctorApplyForm() {
                                 );
                               }}
                             >
-                              <span className="sr-only">Remove file</span>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="h-4 w-4"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M6 18L18 6M6 6l12 12"
-                                />
-                              </svg>
+                              <X className="size-4" />
                             </Button>
                           </li>
                         ))}
                       </ul>
-                    )}
-                    {files.length === 0 && (
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        No file selected
-                      </span>
                     )}
                   </div>
 

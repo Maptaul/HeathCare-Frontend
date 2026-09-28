@@ -1,5 +1,10 @@
 "use client";
-import { useResendOtp, useVerifyDoctorAccount, useVerifyEmail } from "@/hooks";
+import {
+  useResendDoctorOtp,
+  useResendOtp,
+  useVerifyDoctorAccount,
+  useVerifyEmail,
+} from "@/hooks";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -30,11 +35,18 @@ export default function AccountVerifyForm({
   const [isInvalid, setIsInvalid] = useState(false);
   const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
 
-  const { mutate: verifyPatient, isPending: verifyPending } = useVerifyEmail();
-  const { mutate: verifyDoctor } = useVerifyDoctorAccount();
-  const { mutate: resend, isPending: resendPending } = useResendOtp();
+  const patientVerify = useVerifyEmail();
+  const doctorVerify = useVerifyDoctorAccount();
+  const patientResend = useResendOtp();
+  const doctorResend = useResendDoctorOtp();
 
-  const verify = mode === "doctor" ? verifyDoctor : verifyPatient;
+  const isDoctor = mode === "doctor";
+  const { mutate: verify, isPending: verifyPending } = isDoctor
+    ? doctorVerify
+    : patientVerify;
+  const { mutate: resend, isPending: resendPending } = isDoctor
+    ? doctorResend
+    : patientResend;
 
   const email = searchParams.get("email") || "";
   useEffect(() => {

@@ -1,11 +1,17 @@
 import apiClient from "@/lib/apiClient";
-import { DoctorApplicationPayload, verifyAccountPayload } from "@/types";
+import type {
+  DoctorApplicationPayload,
+  ResendOtpPayload,
+  verifyAccountPayload,
+} from "@/types";
 
 export function applyAsDoctor(payload: DoctorApplicationPayload) {
   const formData = new FormData();
 
   formData.append("data", JSON.stringify(payload.data));
-  formData.append("resume", payload.resume);
+  if (payload.resume) {
+    formData.append("resume", payload.resume);
+  }
 
   for (const file of payload.additionalFiles) {
     formData.append("additionalFiles", file);
@@ -18,6 +24,12 @@ export function applyAsDoctor(payload: DoctorApplicationPayload) {
 }
 export function verifyDoctorAccount(payload: verifyAccountPayload) {
   return apiClient("/doctor/apply-as-doctor/verify-email", {
+    method: "POST",
+    body: payload,
+  });
+}
+export function resendDoctorOtp(payload: ResendOtpPayload) {
+  return apiClient("/doctor/apply-as-doctor/resend-otp", {
     method: "POST",
     body: payload,
   });

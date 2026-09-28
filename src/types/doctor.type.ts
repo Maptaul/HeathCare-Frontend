@@ -8,21 +8,15 @@ export interface DoctorApplicationData {
     licenseNumber: string;
     qualifications: string;
     experienceYears: number;
-    contactNumber: string;
-    address: string;
-    consultationFee: number | undefined;
-    bio: string;
+    contactNumber?: string;
+    address?: string;
+    consultationFee?: number;
+    bio?: string;
   };
 }
 
 export interface DoctorApplicationPayload {
-  resume: File;
-  additionalFiles: File[];
-  data: DoctorApplicationData;
-}
-
-export interface DoctorApplicationPayload {
-  resume: File;
+  resume: File | null;
   additionalFiles: File[];
   data: DoctorApplicationData;
 }
