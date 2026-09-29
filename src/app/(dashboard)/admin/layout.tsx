@@ -1,5 +1,6 @@
+import AuthGuard from "@/components/auth/auth-gurad";
 import { ReactNode } from "react";
 
 export default function layout({ children }: { children: ReactNode }) {
-  return <div>Admin Layout: {children}</div>;
+  return <AuthGuard>{children}</AuthGuard>;
 }
