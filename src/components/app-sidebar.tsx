@@ -18,15 +18,14 @@ const data = {
   navMain: [
     {
       title: "management",
-      url: "#",
       items: [
         {
-          title: "Installation",
-          url: "#",
+          title: "Overview",
+          url: "/admin",
         },
         {
-          title: "Project Structure",
-          url: "#",
+          title: "Doctor Approval",
+          url: "/admin/approve-doctor",
         },
       ],
     },
