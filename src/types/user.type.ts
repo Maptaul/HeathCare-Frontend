@@ -1,0 +1,7 @@
+export type UserRole =
+  | "SUPER_ADMIN"
+  | "ADMIN"
+  | "DOCTOR"
+  | "PATIENT"
+  | "NURSE"
+  | "RECEPTIONIST";

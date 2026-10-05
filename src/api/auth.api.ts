@@ -36,8 +36,10 @@ export function userLogout() {
     method: "POST",
   });
 }
-export function getMe() {
-  return ApiClient("/auth/me");
+// backend wraps payload as { success, message, data: user }
+export async function getMe() {
+  const res = await ApiClient("/auth/me");
+  return res.data;
 }
 
 export function googleOAuth(payload: { idToken: string }) {
