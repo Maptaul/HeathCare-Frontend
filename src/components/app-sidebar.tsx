@@ -1,5 +1,5 @@
-import * as React from "react";
-
+"use client";
+import Logo from "@/assets/svg/Logo";
 import {
   Sidebar,
   SidebarContent,
@@ -12,56 +12,46 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { adminRoutes, doctorRoutes, patientRoutes } from "@/routes";
+import { UserRole } from "@/types";
+import { SidebarItems } from "@/types/sidebar.type";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-// This is sample data.
-const data = {
-  navMain: [
-    {
-      title: "management",
-      items: [
-        {
-          title: "Overview",
-          url: "/admin",
-        },
-        {
-          title: "Doctor Approval",
-          url: "/admin/approve-doctor",
-        },
-      ],
-    },
-    {
-      title: "App setting",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-      ],
-    },
-  ],
+const sidebarRoutes: Partial<Record<UserRole, SidebarItems>> = {
+  SUPER_ADMIN: adminRoutes,
+  ADMIN: adminRoutes,
+  DOCTOR: doctorRoutes,
+  PATIENT: patientRoutes,
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ role }: { role: UserRole }) {
+  const pathname = usePathname();
+  const routes: SidebarItems = sidebarRoutes[role] || [];
   return (
-    <Sidebar {...props}>
-      <SidebarHeader></SidebarHeader>
+    <Sidebar>
+      <SidebarHeader>
+        <Link href={"/"}>
+          <div className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <Logo className="h-8 w-8" />{" "}
+            <span className="text-lg font-bold">Healthcare</span>
+          </div>
+        </Link>
+      </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
+        {routes.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
-                      <a href={item.url}>{item.title}</a>
+                    <SidebarMenuButton
+                      render={<Link href={item.url} />}
+                      isActive={pathname === item.url}
+                    >
+                      {item.title}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

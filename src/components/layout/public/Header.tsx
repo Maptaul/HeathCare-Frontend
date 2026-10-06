@@ -3,6 +3,7 @@ import Logo from "@/assets/svg/Logo";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useGetMe, useLogout } from "@/hooks";
+import { UserRole } from "@/types/user.type";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
@@ -18,10 +19,19 @@ export default function Header() {
     },
   ];
 
+  const dashboardRoutes: Record<UserRole, string> = {
+    SUPER_ADMIN: "/admin",
+    ADMIN: "/admin",
+    DOCTOR: "/doctor",
+    PATIENT: "/patient",
+  };
   const { data, isLoading } = useGetMe();
   const { mutate: logout } = useLogout();
 
   const queryClient = useQueryClient();
+
+  const role: UserRole = !!data?.role && data?.data?.role;
+
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
@@ -43,7 +53,6 @@ export default function Header() {
     });
   };
 
- 
   return (
     <header className="w-full h-16 bg-white shadow-md border-b flex items-center justify-center">
       <div className=" flex justify-between items-center w-full max-w-6xl px-4">
@@ -57,6 +66,12 @@ export default function Header() {
               {route.name}
             </Link>
           ))}
+
+          {role && (
+            <Link href={`${dashboardRoutes[role]}`} className="mx-4">
+              Dashboard
+            </Link>
+          )}
         </nav>
         <div>
           {!isLoading && !data && (
