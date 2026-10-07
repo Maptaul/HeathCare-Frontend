@@ -1,4 +1,3 @@
-import { useGetAllDoctors } from "@/api";
 import {
   Table,
   TableBody,
@@ -8,18 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useSuspenseGetAllDoctors } from "@/hooks";
 import DoctorReviewSheet from "./doctor-review-sheet";
 
 export default function DoctorApprovalTable() {
-  const { data, isPending } = useGetAllDoctors();
+  const { data } = useSuspenseGetAllDoctors();
 
-  const doctors = data?.data || [];
-
-  console.log(doctors);
-
-  if(isPending) {
-    return <div>Loading...</div>
-  }
+  const doctors = data?.data;
 
   return (
     <div className="w-full border rounded-md p-4">
@@ -37,7 +31,7 @@ export default function DoctorApprovalTable() {
         </TableHeader>
         <TableBody>
           {doctors.map((doctor) => (
-            <TableRow>
+            <TableRow key={doctor.id}>
               <TableCell className="font-medium">{doctor.name}</TableCell>
               <TableCell className="font-medium">
                 {doctor.licenseNumber}

@@ -1,5 +1,6 @@
 import apiClient from "@/lib/apiClient";
 import type {
+  ApiResponse,
   Doctor,
   DoctorApplicationPayload,
   ResendOtpPayload,
@@ -37,5 +38,5 @@ export function resendDoctorOtp(payload: ResendOtpPayload) {
 }
 
 export function getAllDoctors() {
-  return apiClient<Doctor[]>("/doctor/all-doctors");
+  return apiClient<ApiResponse<Doctor[]>>("/doctor/all-doctors");
 }
