@@ -1,5 +1,6 @@
 import apiClient from "@/lib/apiClient";
 import type {
+  Doctor,
   DoctorApplicationPayload,
   ResendOtpPayload,
   verifyAccountPayload,
@@ -33,4 +34,8 @@ export function resendDoctorOtp(payload: ResendOtpPayload) {
     method: "POST",
     body: payload,
   });
+}
+
+export function getAllDoctors() {
+  return apiClient<Doctor[]>("/doctor/all-doctors");
 }

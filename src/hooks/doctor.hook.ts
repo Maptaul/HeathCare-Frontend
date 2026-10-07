@@ -1,5 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
-import { applyAsDoctor, resendDoctorOtp, verifyDoctorAccount } from "@/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { applyAsDoctor, getAllDoctors, resendDoctorOtp, verifyDoctorAccount } from "@/api";
 
 export function useApplyAsDoctor() {
   return useMutation({
@@ -16,5 +16,12 @@ export function useVerifyDoctorAccount() {
 export function useResendDoctorOtp() {
   return useMutation({
     mutationFn: resendDoctorOtp,
+  });
+}
+
+export function useGetAllDoctors() {
+  return useQuery({
+    queryKey: ["doctors"],
+    queryFn: getAllDoctors,
   });
 }
