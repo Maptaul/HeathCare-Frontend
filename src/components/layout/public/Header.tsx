@@ -3,7 +3,7 @@ import Logo from "@/assets/svg/Logo";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useGetMe, useLogout } from "@/hooks";
-import { UserRole } from "@/types/user.type";
+import type { UserRole } from "@/types/user.type";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
@@ -19,7 +19,7 @@ export default function Header() {
     },
   ];
 
-  const dashboardRoutes: Record<UserRole, string> = {
+  const dashboardRoutes: Partial<Record<UserRole, string>> = {
     SUPER_ADMIN: "/admin",
     ADMIN: "/admin",
     DOCTOR: "/doctor",
@@ -30,7 +30,7 @@ export default function Header() {
 
   const queryClient = useQueryClient();
 
-  const role: UserRole = !!data?.role && data?.data?.role;
+  const role = data?.role as UserRole | undefined;
 
   const handleLogout = () => {
     logout(undefined, {
@@ -67,7 +67,7 @@ export default function Header() {
             </Link>
           ))}
 
-          {role && (
+          {role && dashboardRoutes[role] && (
             <Link href={`${dashboardRoutes[role]}`} className="mx-4">
               Dashboard
             </Link>
