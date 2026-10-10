@@ -1,7 +1,7 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { DoctorVerificationStatus } from "@/types";
+import type { DoctorParams, DoctorVerificationStatus } from "@/types";
 import { Suspense, useState } from "react";
 import DoctorApprovalTable from "./doctor-approval-table";
 import DoctorApprovalTableLoading from "./doctor-approval-table-loading";
@@ -13,7 +13,13 @@ const verificationStatus: ["All" | DoctorVerificationStatus, string][] = [
   ["All", "All"],
 ];
 export default function DoctorApprovalTabs() {
-  const [tab, setTab] = useState("All");
+  const [tab, setTab] = useState<"All" | DoctorVerificationStatus>("All");
+
+  const queryParams : DoctorParams = {
+    page : 1,
+    limit : 10,
+    ...(tab === "All" ? {} : { verificationStatus: tab }),
+  }
   return (
     <>
       <div className="flex justify-between">
@@ -41,7 +47,7 @@ export default function DoctorApprovalTabs() {
         </div>
       </div>
       <Suspense fallback={<DoctorApprovalTableLoading />}>
-        <DoctorApprovalTable />
+        <DoctorApprovalTable {...queryParams} />
       </Suspense>
     </>
   );

@@ -55,3 +55,11 @@ export interface Doctor {
   userId: string;
   user: User;
 }
+
+export interface DoctorParams {
+  verificationStatus?: DoctorVerificationStatus;
+  page?: number;
+  limit?: number;
+  searchTerm?: string;
+  sortOrder?: "asc" | "desc";
+}

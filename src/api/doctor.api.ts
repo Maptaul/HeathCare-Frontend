@@ -3,6 +3,7 @@ import type {
   ApiResponse,
   Doctor,
   DoctorApplicationPayload,
+  DoctorParams,
   ResendOtpPayload,
   verifyAccountPayload,
 } from "@/types";
@@ -37,6 +38,8 @@ export function resendDoctorOtp(payload: ResendOtpPayload) {
   });
 }
 
-export function getAllDoctors() {
-  return apiClient<ApiResponse<Doctor[]>>("/doctor/all-doctors");
+export function getAllDoctors(params: DoctorParams) {
+  return apiClient<ApiResponse<Doctor[]>>("/doctor/all-doctors", {
+    params,
+  });
 }
