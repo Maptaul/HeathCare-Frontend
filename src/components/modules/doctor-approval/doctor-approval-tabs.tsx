@@ -5,6 +5,7 @@ import type { DoctorParams, DoctorVerificationStatus } from "@/types";
 import { Suspense, useState } from "react";
 import DoctorApprovalTable from "./doctor-approval-table";
 import DoctorApprovalTableLoading from "./doctor-approval-table-loading";
+import DoctorReviewSheet from "./doctor-review-sheet";
 
 const verificationStatus: ["All" | DoctorVerificationStatus, string][] = [
   ["APPROVED", "Approved"],
@@ -14,12 +15,13 @@ const verificationStatus: ["All" | DoctorVerificationStatus, string][] = [
 ];
 export default function DoctorApprovalTabs() {
   const [tab, setTab] = useState<"All" | DoctorVerificationStatus>("All");
+  const [selectedid, setSelectedId] = useState("");
 
-  const queryParams : DoctorParams = {
-    page : 1,
-    limit : 10,
+  const queryParams: DoctorParams = {
+    page: 1,
+    limit: 10,
     ...(tab === "All" ? {} : { verificationStatus: tab }),
-  }
+  };
   return (
     <>
       <div className="flex justify-between">
@@ -47,8 +49,12 @@ export default function DoctorApprovalTabs() {
         </div>
       </div>
       <Suspense fallback={<DoctorApprovalTableLoading />}>
-        <DoctorApprovalTable {...queryParams} />
+        <DoctorApprovalTable {...queryParams} handleReview={setSelectedId} />
       </Suspense>
+      <DoctorReviewSheet
+        selectedId={selectedid}
+        onClose={() => setSelectedId("")}
+      />
     </>
   );
 }
