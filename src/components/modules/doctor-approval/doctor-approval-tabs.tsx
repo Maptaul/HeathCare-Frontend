@@ -1,6 +1,7 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useDebounce from "@/hooks/debounce.hook";
 import type { DoctorParams, DoctorVerificationStatus } from "@/types";
 import { Suspense, useState } from "react";
 import DoctorApprovalTable from "./doctor-approval-table";
@@ -16,17 +17,25 @@ const verificationStatus: ["All" | DoctorVerificationStatus, string][] = [
 export default function DoctorApprovalTabs() {
   const [tab, setTab] = useState<"All" | DoctorVerificationStatus>("All");
   const [selectedId, setSelectedId] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+
+  const debouncedSearchInput = useDebounce(searchInput);
 
   const queryParams: DoctorParams = {
     page: 1,
     limit: 10,
     ...(tab === "All" ? {} : { verificationStatus: tab }),
+    ...(debouncedSearchInput ? { searchTerm: debouncedSearchInput } : {}),
   };
   return (
     <>
       <div className="flex justify-between">
         <div>
-          <Input type="search" placeholder="Search doctors..." />
+          <Input
+            onChange={(e) => setSearchInput(e.target.value)}
+            type="search"
+            placeholder="Search doctors..."
+          />
         </div>
         <div>
           <Tabs
