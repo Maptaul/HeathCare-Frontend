@@ -8,8 +8,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { useGetAllDoctors } from "@/hooks/doctor.hook";
-import { DoctorParams } from "@/types";
+import { useApproveDoctor, useGetAllDoctors } from "@/hooks/doctor.hook";
+import { ApproveDoctorPayload, DoctorParams } from "@/types";
 import { Button } from "@base-ui/react";
 import { useState } from "react";
 
@@ -24,12 +24,34 @@ export default function DoctorReviewSheet({
   ...params
 }: Props) {
   const [confirmRejection, setConfirmationRejection] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  console.log(rejectionReason);
   const { data } = useGetAllDoctors(params);
 
+  const { mutate: verify, isPending } = useApproveDoctor();
+
   const selectedDoctor = data?.data.find((doctor) => doctor.id === selectedId);
-  const handleReviewAction = (doctorId: string) => {
+
+  const handleClose = () => {
     setConfirmationRejection(false);
-    onclose();
+    setRejectionReason("");
+    onClose();
+  };
+  const handleReviewAction = (status: "APPROVED" | "REJECTED") => {
+    const reviewData: ApproveDoctorPayload = {
+      doctorId: selectedId,
+      verificationStatus: status,
+      rejectionReason: rejectionReason,
+    };
+    verify(reviewData, {
+      onSuccess: () => {
+        console.log("Doctor verified successfully");
+        handleClose();
+      },
+      onError: (error) => {
+        console.error("Error verifying doctor:", error);
+      },
+    });
   };
 
   if (!selectedDoctor) {
@@ -37,7 +59,7 @@ export default function DoctorReviewSheet({
   }
 
   return (
-    <Sheet open={!!selectedId} onOpenChange={onClose}>
+    <Sheet open={!!selectedId} onOpenChange={handleClose}>
       <SheetContent side="left">
         <SheetHeader>
           <SheetTitle>
@@ -51,15 +73,29 @@ export default function DoctorReviewSheet({
         <SheetFooter>
           {confirmRejection ? (
             <div className="flex flex-col gap-2 w-full">
-              <Textarea placeholder="Enter rejection reason..." />
-              <Button
-                onClick={handleReviewAction}
-                variant="outline"
-                size="lg"
-                className="w-full"
-              >
-                Confirm Rejection
-              </Button>
+              <Textarea
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Enter rejection reason..."
+              />
+              <div className="flex gap-2 w-full">
+                <Button
+                  onClick={handleClose}
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => handleReviewAction("REJECTED")}
+                  variant="destructive"
+                  size="lg"
+                  className="w-full"
+                  disable={!rejectionReason}
+                >
+                  Confirm Rejection
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="flex gap-2 w-full">
@@ -72,7 +108,7 @@ export default function DoctorReviewSheet({
                 Reject
               </Button>
               <Button
-                onClick={handleReviewAction}
+                onClick={() => handleReviewAction("APPROVED")}
                 variant="default"
                 size="lg"
                 className="flex-1"

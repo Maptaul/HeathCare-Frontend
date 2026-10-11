@@ -1,6 +1,7 @@
 import apiClient from "@/lib/apiClient";
 import type {
   ApiResponse,
+  ApproveDoctorPayload,
   Doctor,
   DoctorApplicationPayload,
   DoctorParams,
@@ -41,5 +42,12 @@ export function resendDoctorOtp(payload: ResendOtpPayload) {
 export function getAllDoctors(params: DoctorParams) {
   return apiClient<ApiResponse<Doctor[]>>("/doctor/all-doctors", {
     params,
+  });
+}
+
+export function approveDoctor(payload: ApproveDoctorPayload) {
+  return apiClient("/doctor/approve-doctor", {
+    method: "POST",
+    body: payload,
   });
 }

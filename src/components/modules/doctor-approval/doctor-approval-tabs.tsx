@@ -15,7 +15,7 @@ const verificationStatus: ["All" | DoctorVerificationStatus, string][] = [
 ];
 export default function DoctorApprovalTabs() {
   const [tab, setTab] = useState<"All" | DoctorVerificationStatus>("All");
-  const [selectedid, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState("");
 
   const queryParams: DoctorParams = {
     page: 1,
@@ -52,7 +52,7 @@ export default function DoctorApprovalTabs() {
         <DoctorApprovalTable {...queryParams} handleReview={setSelectedId} />
       </Suspense>
       <DoctorReviewSheet
-        selectedId={selectedid}
+        selectedId={selectedId}
         onClose={() => setSelectedId("")}
       />
     </>

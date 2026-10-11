@@ -1,5 +1,6 @@
 import {
   applyAsDoctor,
+  approveDoctor,
   getAllDoctors,
   resendDoctorOtp,
   verifyDoctorAccount,
@@ -35,5 +36,11 @@ export function useSuspenseGetAllDoctors(params: DoctorParams) {
   return useSuspenseQuery({
     queryKey: ["doctors", params],
     queryFn: () => getAllDoctors(params),
+  });
+}
+
+export function useApproveDoctor() {
+  return useMutation({
+    mutationFn: approveDoctor,
   });
 }
