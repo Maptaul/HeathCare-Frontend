@@ -7,6 +7,7 @@ import { Suspense, useState } from "react";
 import DoctorApprovalTable from "./doctor-approval-table";
 import DoctorApprovalTableLoading from "./doctor-approval-table-loading";
 import DoctorReviewSheet from "./doctor-review-sheet";
+import TablePagination from "@/components/ui/table-pagination";
 
 const verificationStatus: ["All" | DoctorVerificationStatus, string][] = [
   ["APPROVED", "Approved"],
@@ -60,6 +61,7 @@ export default function DoctorApprovalTabs() {
       <Suspense fallback={<DoctorApprovalTableLoading />}>
         <DoctorApprovalTable {...queryParams} handleReview={setSelectedId} />
       </Suspense>
+      <TablePagination />
       <DoctorReviewSheet
         selectedId={selectedId}
         onClose={() => setSelectedId("")}
