@@ -7,7 +7,6 @@ import { Suspense, useState } from "react";
 import DoctorApprovalTable from "./doctor-approval-table";
 import DoctorApprovalTableLoading from "./doctor-approval-table-loading";
 import DoctorReviewSheet from "./doctor-review-sheet";
-import TablePagination from "@/components/ui/table-pagination";
 
 const verificationStatus: ["All" | DoctorVerificationStatus, string][] = [
   ["APPROVED", "Approved"],
@@ -19,11 +18,17 @@ export default function DoctorApprovalTabs() {
   const [tab, setTab] = useState<"All" | DoctorVerificationStatus>("All");
   const [selectedId, setSelectedId] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
 
   const debouncedSearchInput = useDebounce(searchInput);
 
+  const handleSearch = (e) => {
+    setSearchInput(e.target.value);
+    setPage(1); // Reset to the first page when search input changes
+  };
+
   const queryParams: DoctorParams = {
-    page: 1,
+    page: page,
     limit: 10,
     ...(tab === "All" ? {} : { verificationStatus: tab }),
     ...(debouncedSearchInput ? { searchTerm: debouncedSearchInput } : {}),
@@ -33,7 +38,7 @@ export default function DoctorApprovalTabs() {
       <div className="flex justify-between">
         <div>
           <Input
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) => handleSearch(e)}
             type="search"
             placeholder="Search doctors..."
           />
@@ -59,9 +64,13 @@ export default function DoctorApprovalTabs() {
         </div>
       </div>
       <Suspense fallback={<DoctorApprovalTableLoading />}>
-        <DoctorApprovalTable {...queryParams} handleReview={setSelectedId} />
+        <DoctorApprovalTable
+          {...queryParams}
+          handleReview={setSelectedId}
+          handlePageChange={setPage}
+        />
       </Suspense>
-      <TablePagination />
+
       <DoctorReviewSheet
         selectedId={selectedId}
         onClose={() => setSelectedId("")}
