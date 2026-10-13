@@ -2,12 +2,12 @@ import DoctorApprovalTabs from "@/components/modules/doctor-approval/doctor-appr
 
 export default function ApproveDoctor() {
   return (
-    <div>
+    <section className="p-4">
       <div>
         <h1>Approve Doctor</h1>
         <p>Review and approve new doctor applications.</p>
       </div>
       <DoctorApprovalTabs />
-    </div>
+    </section>
   );
 }
