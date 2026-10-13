@@ -5,6 +5,9 @@ import type {
   Doctor,
   DoctorApplicationPayload,
   DoctorParams,
+  PublicDoctor,
+  PublicDoctorParams,
+  PublicDoctorProfile,
   ResendOtpPayload,
   verifyAccountPayload,
 } from "@/types";
@@ -50,4 +53,16 @@ export function approveDoctor(payload: ApproveDoctorPayload) {
     method: "POST",
     body: payload,
   });
+}
+
+export function getAllPublicDoctors(params: PublicDoctorParams) {
+  return apiClient<ApiResponse<PublicDoctor[]>>("/doctor/public/all-doctors", {
+    params,
+  });
+}
+
+export function getPublicDoctorProfile(doctorId: string) {
+  return apiClient<ApiResponse<PublicDoctorProfile>>(
+    `/doctor/public/${encodeURIComponent(doctorId)}`,
+  );
 }

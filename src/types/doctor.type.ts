@@ -69,3 +69,37 @@ export interface ApproveDoctorPayload {
   verificationStatus: "APPROVED" | "REJECTED";
   rejectionReason?: string;
 }
+
+// Shape returned by the public (no-auth) doctor endpoints
+export interface PublicDoctor {
+  id: string;
+  name: string;
+  specialization: string;
+  licenseNumber: string;
+  qualifications: string;
+  experienceYears: number;
+  bio?: string | null;
+  consultationFee: number | string | null;
+  createdAt: string;
+}
+
+export interface PublicDoctorSchedule {
+  id: string;
+  startDateTime: string;
+  endDateTime: string;
+  totalSlots: number;
+  availableSlots: number;
+}
+
+export interface PublicDoctorProfile extends PublicDoctor {
+  schedules: PublicDoctorSchedule[];
+}
+
+export interface PublicDoctorParams {
+  searchTerm?: string;
+  specialization?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}

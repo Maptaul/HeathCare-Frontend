@@ -2,10 +2,12 @@ import {
   applyAsDoctor,
   approveDoctor,
   getAllDoctors,
+  getAllPublicDoctors,
+  getPublicDoctorProfile,
   resendDoctorOtp,
   verifyDoctorAccount,
 } from "@/api";
-import { DoctorParams } from "@/types";
+import type { DoctorParams, PublicDoctorParams } from "@/types";
 import {
   useMutation,
   useQuery,
@@ -37,6 +39,22 @@ export function useGetAllDoctors(params: DoctorParams) {
     queryFn: () => getAllDoctors(params),
   });
 }
+
+export function useGetAllPublicDoctors(params: PublicDoctorParams) {
+  return useQuery({
+    queryKey: ["doctors", "public", "list", params],
+    queryFn: () => getAllPublicDoctors(params),
+  });
+}
+
+export function useGetPublicDoctorProfile(doctorId: string) {
+  return useQuery({
+    queryKey: ["doctors", "public", "profile", doctorId],
+    queryFn: () => getPublicDoctorProfile(doctorId),
+    enabled: !!doctorId,
+  });
+}
+
 export function useSuspenseGetAllDoctors(params: DoctorParams) {
   return useSuspenseQuery({
     queryKey: ["doctors", params],
