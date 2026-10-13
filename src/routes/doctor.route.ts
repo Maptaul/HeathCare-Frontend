@@ -9,8 +9,8 @@ export const doctorRoutes = [
         url: `${prefix}`,
       },
       {
-        title: "create Schedule ",
-        url: `${prefix}/create-schedule`,
+        title: "My Schedules",
+        url: `${prefix}/schedules`,
       },
     ],
   },
