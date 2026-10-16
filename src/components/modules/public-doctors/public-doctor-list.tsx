@@ -67,7 +67,7 @@ export default function PublicDoctorList() {
                 </CardContent>
                 <CardFooter>
                   <Link
-                    href={`/doctors/profile?id=${doctor.id}`}
+                    href={`/doctors/${doctor.id}`}
                     className="text-sm font-medium underline"
                   >
                     View profile

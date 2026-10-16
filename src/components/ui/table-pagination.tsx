@@ -39,12 +39,13 @@ const getButtonArray = (
 interface Props {
   totalPages: number;
   handlePageChange: Dispatch<SetStateAction<number>>;
+  page?: number;
 }
 
 export default function TablePagination({
   totalPages,
   handlePageChange,
-  page
+  page = 1,
 }: Props) {
   const goToPage = (page: number) => {
     handlePageChange(page);

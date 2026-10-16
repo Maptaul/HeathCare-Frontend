@@ -22,7 +22,7 @@ export default function DoctorApprovalTabs() {
 
   const debouncedSearchInput = useDebounce(searchInput);
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
     setPage(1); // Reset to the first page when search input changes
   };

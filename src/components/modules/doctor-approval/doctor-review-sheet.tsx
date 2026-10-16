@@ -10,7 +10,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useApproveDoctor, useGetAllDoctors } from "@/hooks/doctor.hook";
 import { ApproveDoctorPayload, DoctorParams } from "@/types";
-import { Button } from "@base-ui/react";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 interface Props extends DoctorParams {
@@ -91,7 +91,7 @@ export default function DoctorReviewSheet({
                   variant="destructive"
                   size="lg"
                   className="w-full"
-                  disable={!rejectionReason}
+                  disabled={!rejectionReason}
                 >
                   Confirm Rejection
                 </Button>

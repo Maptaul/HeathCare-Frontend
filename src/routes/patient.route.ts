@@ -9,6 +9,10 @@ export const patientRoutes = [
         url: `${prefix}`,
       },
       {
+        title: "My Appointments",
+        url: `${prefix}/my-appointments`,
+      },
+      {
         title: "Payment History",
         url: `${prefix}/payment-history`,
       },

@@ -9,6 +9,7 @@ import type {
   PublicDoctorParams,
   PublicDoctorProfile,
   ResendOtpPayload,
+  Schedule,
   verifyAccountPayload,
 } from "@/types";
 
@@ -63,6 +64,17 @@ export function getAllPublicDoctors(params: PublicDoctorParams) {
 
 export function getPublicDoctorProfile(doctorId: string) {
   return apiClient<ApiResponse<PublicDoctorProfile>>(
-    `/doctor/public/${encodeURIComponent(doctorId)}`,
+    `/doctor/public/${(doctorId)}`,
   );
+}
+
+
+export function getTodaySchedulesByDoctor(params: {
+  doctorId?: string;
+  page?: number;
+  limit?: number;
+}) {
+  return apiClient<ApiResponse<Schedule[]>>("/schedule/todays-schedule", {
+    params,
+  });
 }

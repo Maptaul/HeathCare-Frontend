@@ -16,7 +16,6 @@ import { Dispatch, SetStateAction } from "react";
 interface Props extends DoctorParams {
   handleReview: Dispatch<SetStateAction<string>>;
   handlePageChange: Dispatch<SetStateAction<number>>;
-  page: number;
 }
 
 export default function DoctorApprovalTable({
@@ -63,7 +62,7 @@ export default function DoctorApprovalTable({
                     <Button
                       variant="outline"
                       onClick={() => handleReview(doctor.id)}
-                      disabled={doctor.user.emailVerified !== "PENDING"}
+                      disabled={doctor.verificationStatus !== "PENDING"}
                     >
                       Review
                     </Button>
@@ -80,7 +79,7 @@ export default function DoctorApprovalTable({
         <TablePagination
           totalPages={data?.meta.totalPages ?? 0}
           handlePageChange={handlePageChange}
-          page={params.page ?? 0}
+          page={params.page ?? 1}
         />
       </div>
     </>
